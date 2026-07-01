@@ -1,0 +1,44 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Claude Code helyi beállítások (személyes, ne kerüljön a repóba)
+.claude/settings.local.json
+
+# Környezeti változók, titkok
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Adatfájlok (NRC — SPSS/statisztikai adatok NEM kerülnek verziókövetésbe)
+*.sav
+*.zsav
+*.por
+*.spv
+*.sps
+data/
+adatok/
+
+# Logok, ideiglenes fájlok
+*.log
+tmp/
+temp/
