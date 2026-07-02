@@ -1,48 +1,75 @@
 import { createInterface } from 'node:readline';
-import { echo } from '@plantbase/core';
-
-export interface AskOptions {
-  showPrompt?: boolean;
-}
+import {
+  askAgent,
+  type AskAgentOptions,
+  type AskAgentResult,
+} from '@plantbase/core';
 
 /**
- * Az `ask` parancs I/O rétege. B1: még csak visszhang (echo).
+ * Az `ask` parancs I/O rétege. B2: valódi LLM-hívás DB nélkül.
  * - kérdéssel: egyszeri (single-shot) válasz és kilépés,
  * - kérdés nélkül: interaktív readline mód `exit`-ig.
- * A tényleges válasz-logika a B2 (LLM) és B3 (runSql) fázisban kerül ide.
+ * A --show-prompt a modellnek küldött teljes prompt-ot is kiírja (FR5).
  */
-export function runAsk(
+export async function runAsk(
   question: string | undefined,
-  _options: AskOptions,
-): void {
+  options: AskAgentOptions,
+): Promise<void> {
   const trimmed = question?.trim();
   if (trimmed) {
-    console.log(echo(trimmed));
+    await answerOnce(trimmed, options);
     return;
   }
-  runInteractive();
+  await runInteractive(options);
 }
 
-function runInteractive(): void {
+function printPrompt(result: AskAgentResult): void {
+  console.log('--- system prompt ---');
+  console.log(result.systemPrompt);
+  console.log('--- messages ---');
+  console.log(JSON.stringify(result.messages, null, 2));
+  console.log('--- válasz ---');
+}
+
+async function answerOnce(
+  question: string,
+  options: AskAgentOptions,
+): Promise<void> {
+  const result = await askAgent(question, options);
+  if (options.showPrompt) {
+    printPrompt(result);
+  }
+  console.log(result.answer);
+}
+
+async function runInteractive(options: AskAgentOptions): Promise<void> {
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
     prompt: 'plantbase> ',
   });
 
-  console.log('Interaktív mód — írj be egy sort. Kilépés: "exit".');
+  console.log('Interaktív mód — kérdezz a növényekről. Kilépés: "exit".');
   rl.prompt();
 
-  rl.on('line', (line) => {
-    if (line.trim() === 'exit') {
-      rl.close();
-      return;
+  for await (const line of rl) {
+    const trimmed = line.trim();
+    if (trimmed === 'exit') {
+      break;
     }
-    console.log(echo(line));
+    if (!trimmed) {
+      rl.prompt();
+      continue;
+    }
+    try {
+      await answerOnce(trimmed, options);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`Hiba: ${message}`);
+    }
     rl.prompt();
-  });
+  }
 
-  rl.on('close', () => {
-    console.log('Viszlát!');
-  });
+  rl.close();
+  console.log('Viszlát!');
 }

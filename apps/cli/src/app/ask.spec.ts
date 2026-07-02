@@ -1,29 +1,43 @@
 import { runAsk } from './ask.js';
 
-describe('runAsk (single-shot)', () => {
-  it('should echo a provided question and not start interactive mode', () => {
-    const logs: string[] = [];
-    const spy = vi.spyOn(console, 'log').mockImplementation((msg?: unknown) => {
-      logs.push(String(msg));
-    });
+// A core askAgent-jét mockoljuk: a CLI I/O rétegét teszteljük, nem az LLM-hívást.
+vi.mock('@plantbase/core', () => ({
+  askAgent: vi.fn(async (question: string) => ({
+    answer: `válasz: ${question}`,
+    model: 'test-model',
+    systemPrompt: 'SYS-PROMPT',
+    messages: [{ role: 'user', content: question }],
+    usage: { inputTokens: 1, outputTokens: 2 },
+  })),
+}));
+
+function captureLog(): { logs: string[]; restore: () => void } {
+  const logs: string[] = [];
+  const spy = vi.spyOn(console, 'log').mockImplementation((msg?: unknown) => {
+    logs.push(String(msg));
+  });
+  return { logs, restore: () => spy.mockRestore() };
+}
+
+describe('runAsk (single-shot, mocked agent)', () => {
+  it('should print the agent answer for a provided question', async () => {
+    const { logs, restore } = captureLog();
     try {
-      runAsk('van pozsgásod?', {});
+      await runAsk('van pozsgásod?', {});
     } finally {
-      spy.mockRestore();
+      restore();
     }
-    expect(logs).toEqual(['echo: van pozsgásod?']);
+    expect(logs).toContain('válasz: van pozsgásod?');
   });
 
-  it('should trim surrounding whitespace before echoing', () => {
-    const logs: string[] = [];
-    const spy = vi.spyOn(console, 'log').mockImplementation((msg?: unknown) => {
-      logs.push(String(msg));
-    });
+  it('should print the full prompt when --show-prompt is set', async () => {
+    const { logs, restore } = captureLog();
     try {
-      runAsk('  szia  ', {});
+      await runAsk('szia', { showPrompt: true });
     } finally {
-      spy.mockRestore();
+      restore();
     }
-    expect(logs).toEqual(['echo: szia']);
+    expect(logs).toContain('--- system prompt ---');
+    expect(logs.some((line) => line.includes('SYS-PROMPT'))).toBe(true);
   });
 });

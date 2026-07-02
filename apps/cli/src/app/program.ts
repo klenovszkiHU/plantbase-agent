@@ -26,7 +26,7 @@ export function buildProgram(): Command {
       '[kérdés]',
       'a katalógusra vonatkozó kérdés; ha elhagyod, interaktív mód indul',
     )
-    .description('Kérdés a növény-katalógusról (B1: visszhang)')
+    .description('Kérdés a növény-katalógusról (B2: LLM, még DB nélkül)')
     .option('--show-prompt', 'a modellnek küldött teljes prompt kiírása')
     .action(runAsk);
 
