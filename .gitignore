@@ -52,6 +52,9 @@ out-tsc/
 coverage/
 .nx/cache
 .nx/workspace-data
+
+# Prisma generált kliens (build artifact — `prisma generate` állítja elő)
+packages/db/src/generated/
 .nx/migrate-runs
 
 # Editor

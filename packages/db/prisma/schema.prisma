@@ -1,0 +1,50 @@
+// Plantbase — Prisma séma (packages/db).
+// A Prisma a READ-WRITE kapcsolaton (DATABASE_URL) viszi a sémát, migrációt, seedet.
+// Az agent NEM Prismán kérdez, hanem a runSql tool a READ-ONLY kapcsolaton (architektura.md 2).
+//
+// Prisma 7: az új `prisma-client` generátor kötelező explicit output-tal, TS forrást ad,
+// a build tool (tsc/tsx) fordítja. moduleFormat=esm, mert a monorepo ESM (nodenext).
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  runtime      = "nodejs"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  // Prisma 7: az `url` már nem itt van, hanem a prisma.config.ts datasource.url-ban
+  // (Migrate), a runtime kliens pedig driver adaptert kap (seed: @prisma/adapter-pg).
+  provider = "postgresql"
+}
+
+/// Növény-katalógus. Mezőnevek snake_case-re mappelve (stack.md products séma).
+model Product {
+  id         Int    @id @default(autoincrement())
+  name       String // köznapi név
+  latinName  String @map("latin_name")
+  category   String // szobanövény / kerti / pozsgás / kaktusz / fűszer / fa-cserje / lógó / virágzó
+  location   String // beltéri / kültéri / mindkettő
+
+  price     Decimal  @db.Decimal(10, 2) // ár (HUF)
+  salePrice Decimal? @map("sale_price") @db.Decimal(10, 2) // akciós ár, null ha nincs akció
+  stock     Int // raktárkészlet (db)
+
+  light      String // árnyék / alacsony / közepes / erős / direkt nap
+  watering   String // ritka / közepes / gyakori / állandóan nedves
+  difficulty String // kezdő / haladó / profi
+
+  currentHeightCm Int @map("current_height_cm") // aktuális magasság
+  maxHeightCm     Int @map("max_height_cm") // kifejlett (max) magasság
+  currentPotCm    Int @map("current_pot_cm") // aktuális cserépméret
+
+  petSafe      Boolean @map("pet_safe") // háziállat-barát
+  kidSafe      Boolean @map("kid_safe") // gyerekbiztos (nem mérgező)
+  airPurifying Boolean @map("air_purifying") // légtisztító
+
+  rating       Decimal @db.Decimal(2, 1) // 0-5
+  reviewsCount Int     @map("reviews_count")
+  description  String
+
+  @@map("products")
+}
