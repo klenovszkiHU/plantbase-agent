@@ -15,7 +15,13 @@ export default [
           // Prisma-függőségek: a generált kliens (lintből kizárva) és a
           // prisma.config.ts / seed (tsx-szel futtatva) használja őket, ezt a
           // statikus import-ellenőrzés nem látja — de valós, kötelező deps.
-          ignoredDependencies: ['@prisma/client', 'prisma', 'dotenv'],
+          ignoredDependencies: [
+            '@prisma/client',
+            '@prisma/adapter-pg',
+            'pg',
+            'prisma',
+            'dotenv',
+          ],
         },
       ],
     },
