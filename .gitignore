@@ -42,3 +42,32 @@ adatok/
 *.log
 tmp/
 temp/
+
+# Agent-interakciós naplók (plantbase runtime, FR4)
+logs/
+
+# Nx / build kimenet
+dist/
+out-tsc/
+coverage/
+.nx/cache
+.nx/workspace-data
+
+# Prisma generált kliens (build artifact — `prisma generate` állítja elő)
+packages/db/src/generated/
+.nx/migrate-runs
+
+# Editor
+/.idea
+.project
+.classpath
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code worktrees
+.claude/worktrees
+
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
