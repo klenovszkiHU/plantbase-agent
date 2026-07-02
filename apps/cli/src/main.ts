@@ -1,3 +1,5 @@
-import { skeletonBanner } from './app/skeleton.js';
+import { buildProgram } from './app/program.js';
 
-console.log(skeletonBanner());
+// A plantbase CLI belépési pontja. A program felépítése a program.ts-ben van
+// (tesztelhető), itt csak az argv feldolgozása történik.
+buildProgram().parse();
