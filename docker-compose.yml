@@ -1,0 +1,31 @@
+# Plantbase — lokális Postgres (OrbStack/Docker futtatja).
+# Két jog, két kapcsolat (architektura.md 2. pont, NFR1):
+#   - plantbase     : RW superuser a DB-hez — ezzel migrál/seedel a Prisma (DATABASE_URL)
+#   - plantbase_ro  : RO, csak SELECT — ezt használja az agent runSql toolja (DATABASE_URL_READONLY)
+# A plantbase_ro role-t a docker/postgres/initdb/ init-SQL hozza létre (első indításkor).
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: plantbase-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: plantbase
+      POSTGRES_PASSWORD: plantbase
+      POSTGRES_DB: plantbase
+      # A read-only role jelszava az init-SQL-nek (env-behelyettesítés a .sql-ben nem megy,
+      # ezért az init scriptben fixen szerepel; ha változtatod, ott is írd át).
+    ports:
+      - '5432:5432'
+    volumes:
+      - plantbase-pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U plantbase -d plantbase']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  plantbase-pgdata:
+    name: plantbase-pgdata
