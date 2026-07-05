@@ -1,7 +1,5 @@
 # plantbase-agent
 
-> NRC — adatIQ.ai / adatiq-agents
-
 Parancssori (CLI) AI agent egy növény-webshop katalógusa fölött. A felhasználó
 hétköznapi nyelven kérdez, az agent ezt **SQL-re fordítja**, **read-only**
 lefuttatja a `products` táblán, és a sorokból érthető, **magyar nyelvű** választ
