@@ -1,4 +1,6 @@
-# CLAUDE.md — projekt-kontextus
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 Fejlesztői kontextus a Claude Code-nak a **plantbase** agenthez. (Ez NEM a
 termék-agent system promptja — az a `packages/core/src/lib/system-prompt.ts`-ben
@@ -72,11 +74,27 @@ nem logol.
 ## Gyakori parancsok
 
 ```bash
-pnpm plantbase ask "<kérdés>"        # egyszeri kérdés (interaktív: argumentum nélkül)
-pnpm nx run-many -t test lint build  # tesztek, lint, build
-docker compose up -d                 # lokális Postgres (RW + RO role)
-pnpm --filter @plantbase/db db:seed  # ~30 növény betöltése
+# Futtatás
+pnpm plantbase ask "<kérdés>"          # egyszeri kérdés (interaktív mód: argumentum nélkül)
+
+# Teszt / lint / build / typecheck (Nx az érintett projektekre)
+pnpm nx run-many -t test lint build    # minden projekt
+pnpm nx test core                      # egy projekt tesztjei (core | db | cli)
+pnpm nx test core -- sql-guard         # EGY teszt-FÁJL (vitest fájlnév-szűrő)
+pnpm nx test core -- -t "should allow" # EGY teszt NÉV szerint (vitest -t)
+pnpm nx run-many -t typecheck          # tsc típusellenőrzés
+pnpm prettier --check .                # formázás (--write a javításhoz)
+
+# Adatbázis (Postgres konténer + Prisma a packages/db-ben)
+docker compose up -d                   # lokális Postgres (RW + RO role)
+pnpm --filter @plantbase/db prisma:migrate    # migráció (dev) — a séma szinkronban
+pnpm --filter @plantbase/db prisma:generate   # Prisma kliens (gitignore-olt, generálni kell)
+pnpm --filter @plantbase/db db:seed           # ~30 növény betöltése (idempotens)
 ```
+
+> Az Nx a projekteket rövid néven is feloldja (`core` = `@plantbase/core`). A `-- ` utáni
+> argumentumok a Vitesthez mennek: fájlnév-részlet a fájl-szűréshez, `-t "<név>"` egy teszthez.
+> A `pnpm plantbase` a forrásból fut (`tsx`, `@plantbase/source` feltétel) — nem kell build.
 
 ## Munkamódszer
 
