@@ -92,6 +92,24 @@ pnpm prettier --check .     # formázás
 Monorepo (Nx): `packages/core` (agent-mag), `packages/db` (Prisma séma + seed),
 `apps/cli` (parancssori felület). A döntések indoklása: [`Docs/architektura.md`](Docs/architektura.md).
 
+## Pluginek
+
+A build-eszközt (Claude Code) három plugin támogatta (`user` scope,
+`claude-plugins-official`). Ezek a **fejlesztést** segítik — nem részei a
+plantbase terméknek:
+
+- **superpowers** — fegyelmezett fejlesztési skill-gyűjtemény: teszt-vezérelt
+  fejlesztés (TDD), szisztematikus hibakeresés, kód-review, és
+  „verification-before-completion" (a „kész" állítást bizonyítani kell, mielőtt
+  kimondod). Így a regressziók és a megalapozatlan „kész"-jelentések korán
+  kiderülnek.
+- **commit-commands** — a változásokból Conventional Commits üzenetet generál,
+  így a git-történet tiszta, fókuszált és utólag kiértékelhető marad (a
+  projektben minden lépés külön, beszédes commit).
+- **skill-creator** — újrahasználható skillek készítése (pl. a
+  `ddd-audit`: a `products` séma és a domain-doksik szinkronban tartása), így a
+  Claude Code képességei a projekt igényeire szabhatók.
+
 ## Adatkezelés
 
 ⚠️ **Adatvédelem:** statisztikai / kutatási adatfájlok (`.sav`, `.zsav` stb.)
